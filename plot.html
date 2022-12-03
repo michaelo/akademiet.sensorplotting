@@ -1,34 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plotting</title>
     <script type="text/javascript" src="chart-v4.0.1.umd.js"></script>
+    <style type="text/css"> 
+        #container {
+            display: grid;
+        }
+
+        #container canvas {
+            min-width: 100%;
+            min-height: 100%;
+        }
+
+        #container.items-1 {
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr;
+        }
+
+        #container.items-2 {
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr;
+        }
+
+        #container.items-3 {
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+        }
+
+        #container.items-4 {
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+        }
+    </style>
 </head>
 
 <body>
-    <div>
-        <canvas id="myChart"></canvas>
+    <div id="container">
     </div>
 
     <script>
-        async function getSamples() {
-            var req = await fetch("results.txt", {cache: "no-store"});
+        // Parses URL to get all "file="-arguments, and return the values as an array
+        function getFilesFromUrl() {
+            const queryString = window.location.search
+            const urlParams = new URLSearchParams(queryString);
+
+            let files = [];
+            urlParams.forEach((el, key) => {
+                if(key == "file") {
+                    files.push(el);
+                }
+            })
+
+            return files;
+        }
+
+        // Main function to add a Chart, including creating the canvas, to a container element
+        // This will also enable a scheduler to periodically update the data
+        async function addChart(container, path) {
+            // Add canvas to container
+            let canvas = document.createElement("canvas");
+            let chartEl = container.appendChild(canvas);
+
+            // Render plot to canvas
+            const samples = await getSamplesFromPath(path);
+            let chart = await renderInitialPlot(canvas, path, samples);
+
+            setInterval(() => {
+                getSamplesFromPath(path).then((samples) => {
+                    console.log(samples);
+                    const labels = [];
+                    for (let i = 0; i < samples.length; ++i) {
+                        labels.push(i.toString());
+                    }
+
+                    chart.data.labels = labels;
+                    chart.data.datasets[0].data = samples;
+                    chart.update();
+                });
+            }, 1000);
+            
+        }
+        
+        // Reads data from a given URL and returns the list of numbers parsed from it
+        async function getSamplesFromPath(path) {
+            var req = await fetch(path, {cache: "no-store"});
             var data = await req.text();
             return data.split("\n").filter(el => el).map(el => Number(el));
         }
 
-        async function renderPlot() {
-            const ctx = document.getElementById('myChart')
-            
-            const samples = await getSamples();
-            console.log(samples);
-            const DATA_COUNT = samples.length;
+        // Sets up the initial chart object, having it rendered onto the passed canvas-node
+        async function renderInitialPlot(canvasCtx, name, samples) {
             const labels = [];
-            for (let i = 0; i < DATA_COUNT; ++i) {
+            for (let i = 0; i < samples.length; ++i) {
                 labels.push(i.toString());
             }
 
@@ -36,7 +103,7 @@
                 labels: labels,
                 datasets: [
                     {
-                        label: "Sensor 1",
+                        label: name,
                         data: samples,
                         borderColor: "#FF0000",
                         backgroundColor: "#FF000044",
@@ -48,7 +115,7 @@
                 type: 'line',
                 data: data,
                 options: {
-                    responsive: true,
+                    responsive: false,
                     plugins: {
                         title: {
                             display: true,
@@ -77,10 +144,16 @@
                     }
                 },
             };
-            const myChart = new Chart(ctx, config);
+            return new Chart(canvasCtx, config);
         }
 
-        renderPlot();
+        // Entry point initiating all charts
+        const container = document.getElementById("container");
+        const files = getFilesFromUrl();
+        container.classList.add("items-" + files.length);
+        for (i in files) {
+            addChart(container, files[i]);
+        }
     </script>
 </body>
 
