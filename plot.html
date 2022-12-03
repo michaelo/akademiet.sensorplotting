@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plotting</title>
+    <script type="text/javascript" src="chart-v4.0.1.umd.js"></script>
+</head>
+
+<body>
+    <div>
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <script>
+        async function getSamples() {
+            var req = await fetch("results.txt", {cache: "no-store"});
+            var data = await req.text();
+            return data.split("\n").filter(el => el).map(el => Number(el));
+        }
+
+        async function renderPlot() {
+            const ctx = document.getElementById('myChart')
+            
+            const samples = await getSamples();
+            console.log(samples);
+            const DATA_COUNT = samples.length;
+            const labels = [];
+            for (let i = 0; i < DATA_COUNT; ++i) {
+                labels.push(i.toString());
+            }
+
+            const data = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: "Sensor 1",
+                        data: samples,
+                        borderColor: "#FF0000",
+                        backgroundColor: "#FF000044",
+                        cubicInterpolationMode: 'monotone',
+                    }
+                ],
+            };
+            const config = {
+                type: 'line',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Sensor results'
+                        },
+                    },
+                    interaction: {
+                        intersect: false,
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Temperatur'
+                            },
+                            suggestedMin: -10,
+                            suggestedMax: 100
+                        }
+                    }
+                },
+            };
+            const myChart = new Chart(ctx, config);
+        }
+
+        renderPlot();
+    </script>
+</body>
+
+</html>
