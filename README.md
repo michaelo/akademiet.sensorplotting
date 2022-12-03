@@ -16,7 +16,11 @@ Programmering av Arduino
 Kjøring av main.py
 ----
 
-main.py tar som kommandolinjeargumenter hvilken port den skal lese fra, hvilken baudrate dataene kommer på og hvilken fil den skal skrive resultatene til:
+main.py tar som kommandolinjeargumenter hvilken serieport den skal lese fra, hvilken baudrate dataene kommer på og hvilken fil den skal skrive resultatene til:
+
+Avhengig av operativsystem og hvilken port det er tilkoblet så kan serieport variere.
+
+For Windows er navnet typisk ``"COM"`` etterfulgt av et nummer. For WSL på Windows kan en finne tilsvarende port som ``"/dev/ttyS"`` etterfulgt av samme nummer. For macOS er denne ``/dev/tty.`` (TODO: Avklar).
 
 F.eks: ``main.py /dev/ttyS3 9600 results.txt``
 
@@ -26,7 +30,7 @@ main.py er avhengig av Python3 og biblioteket [PySerial](https://pyserial.readth
 Visning av plot
 ----
 
-Plot-bibliotek: [ChartJs](https://www.chartjs.org/)
+Plot-bibliotek: [Chart.js](https://www.chartjs.org/)
 
 Ved å kjøre ``./launch_httpserver.sh`` vil det startes en enkel webserver som serverer gjeldende mappe som http://localhost:8080/
 
@@ -34,8 +38,3 @@ Dermed så ved å gå til [``http://localhost:8080/plot.html?file=results.txt``]
 
 Du kan legge til flere plots som skal vises samtid ved å legge til ``&file=annenfil`` på slutten av URLen.
 
-
-
-TODO
-----
-* ...
