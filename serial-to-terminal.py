@@ -2,7 +2,7 @@
 import serial
 
 # Open serial connection. ATT: Rename serial-port according your system/setup
-with serial.Serial("COM3", 9600, timeout=1) as connection:
+with serial.Serial("/dev/tty.usbmodem14501", 9600, timeout=1) as connection:
     # Discards any pre-buffered data
     connection.flush()
 

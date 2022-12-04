@@ -18,7 +18,7 @@ plot = plt.plot([], [])
 plt.ylim(-50,500)
 
 # Open serial connection
-with serial.Serial("COM3", 9600, timeout=1) as connection:
+with serial.Serial("/dev/tty.usbmodem14501", 9600, timeout=1) as connection:
     # Dumps any pre-buffered data
     connection.flush()
 
@@ -29,7 +29,7 @@ with serial.Serial("COM3", 9600, timeout=1) as connection:
         # Att! This conversion may fail if the value read is not number-like
         value = float(value_raw)
         # Add to set of samples
-        samples.append(value_raw)
+        samples.append(value)
 
         # Plot sample set using matplotlib.pyplot
         plt.plot(range(0,len(samples)), samples, color="red")
