@@ -18,16 +18,18 @@ plot = plt.plot([], [])
 plt.ylim(-50,500)
 
 # Open serial connection
-with serial.Serial("/dev/tty.usbmodem14501", 9600, timeout=1) as connection:
-    # Dumps any pre-buffered data
-    connection.flush()
-
+with serial.Serial("/dev/tty.usbmodem14101", 9600, timeout=1) as connection:
     # Initiate reading loop
     while True:
         # Read from serial port
         value_raw = connection.readline().strip().decode("utf-8")
         # Att! This conversion may fail if the value read is not number-like
-        value = float(value_raw)
+        try:
+            value = float(value_raw)
+        except:
+            print("Got unexpected value: ", value_raw)
+            continue
+            
         # Add to set of samples
         samples.append(value)
 
